@@ -6,4 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Gerencianet' => array($vendorDir . '/gerencianet/gerencianet-sdk-php/src'),
 );

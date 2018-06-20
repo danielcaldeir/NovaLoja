@@ -14,13 +14,11 @@
         // Include Mercadopago library
         require_once "../../lib/mercadopago.php";
 
-        // Create an instance with your MercadoPago credentials (CLIENT_ID and CLIENT_SECRET):
-        // Argentina: https://www.mercadopago.com/mla/herramientas/aplicaciones
+        // Create an instance with your MercadoPago credentials (CLIENT_ID and CLIENT_SECRET): 
+        // Argentina: https://www.mercadopago.com/mla/herramientas/aplicaciones 
         // Brasil: https://www.mercadopago.com/mlb/ferramentas/aplicacoes
-        // Mexico: https://www.mercadopago.com/mlm/herramientas/aplicaciones
-        // Venezuela: https://www.mercadopago.com/mlv/herramientas/aplicaciones
-        // Colombia: https://www.mercadopago.com/mco/herramientas/aplicaciones
-        // Chile: https://www.mercadopago.com/mlc/herramientas/aplicaciones
+        // Mexico: https://www.mercadopago.com/mlm/herramientas/aplicaciones 
+        // Venezuela: https://www.mercadopago.com/mlv/herramientas/aplicaciones 
         $mp = new MP("CLIENT_ID", "CLIENT_SECRET");
 
         // Sets the filters you want
@@ -38,15 +36,16 @@
         // Show payment information
         ?>
         <table border='1'>
-            <tr><th>id</th><th>date_created</th><th>operation_type</th><th>external_reference</th></tr>
+            <tr><th>id</th><th>site_id</th><th>date_created</th><th>operation_type</th><th>external_reference</th></tr>
             <?php
             foreach ($searchResult["response"]["results"] as $payment) {
                 ?>
                 <tr>
-                    <td><?php echo $payment["id"]; ?></td>
-                    <td><?php echo $payment["date_created"]; ?></td>
-                    <td><?php echo $payment["operation_type"]; ?></td>
-                    <td><?php echo $payment["external_reference"]; ?></td>
+                    <td><?php echo $payment["collection"]["id"]; ?></td>
+                    <td><?php echo $payment["collection"]["site_id"]; ?></td>
+                    <td><?php echo $payment["collection"]["date_created"]; ?></td>
+                    <td><?php echo $payment["collection"]["operation_type"]; ?></td>
+                    <td><?php echo $payment["collection"]["external_reference"]; ?></td>
                 </tr>
                 <?php
             }

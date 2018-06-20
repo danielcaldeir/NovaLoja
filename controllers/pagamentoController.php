@@ -24,6 +24,8 @@ class pagamentoController extends controller{
         if (isset($_SESSION['user'])){
             $this->user['nome'] = $_SESSION['user']['nome'];
             $this->user['email'] = $_SESSION['user']['email'];
+            $this->user['senha'] =$_SESSION['user']['senha'];
+            $this->user['telefone'] = $_SESSION['user']['telefone'];
         }
         if (count($this->user) == 0){
             $login = new loginController();
@@ -46,7 +48,7 @@ class pagamentoController extends controller{
     }
     
     private function isEmptyFrete($sessionFrete) {
-        if (!empty($sessionFrete)){
+        if (!empty($sessionFrete) && isset($sessionFrete['cep'])){
             $frete = $sessionFrete;
         } else {
             $frete = array();
@@ -66,16 +68,19 @@ class pagamentoController extends controller{
         return $valorFrete;
     }
     
-    public function index() {
+    public function index($error = array()) {
         $filtros = new Filtros();
         $dados = $filtros->getTemplateDados();
         
         $total = $this->buscarTotalCarrinho($_SESSION['cart'], $_SESSION['frete']);
-        
+        if (count($error) > 0){
+            $dados['error'] = $error['error'];
+            $dados['msg'] = $error['msg'];
+        }
         $dados['frete'] = $this->isEmptyFrete($_SESSION['frete']);
         $dados['sessionCode'] = PagSeguro::criarSesssao();
         
-        
+        $dados['usuario'] = $this->user;
         $dados['total'] = $total;
         $dados['sidebar'] = FALSE;
         
@@ -423,7 +428,7 @@ class pagamentoController extends controller{
         $cidade = addslashes($_POST['cidade']);
         $estado = addslashes($_POST['estado']);
         
-        $uid = MercadoPago::verificarEmail($email);
+        $uid = GerenciaNet::verificarEmail($email);
         
         if ($uid == -1) {
             $error = array();
@@ -454,64 +459,151 @@ class pagamentoController extends controller{
         echo("<br> TOTAL:");
         echo($total);
         echo("<br>");
-        $idCompra = MercadoPago::incluirCompras($_SESSION['cart'], $_SESSION['frete'], $uid, $total);
+        $idCompra = GerenciaNet::incluirCompras($_SESSION['cart'], $_SESSION['frete'], $uid, $total);
         //$idCompra = intval("31");
         
         //require './vendor/mercadopago/sdk/lib/mercadopago.php';
-        //global $config;
+        global $config;
+        $options = array();
+        $options['clientID'] = $config['gerenciaNetID'];
+        $options['clientKey'] = $config['gerenciaNetSecretKey'];
+        $options['sandbox'] = $config['gerenciaNetSandBox'];
+        
+        $items = array();
+        foreach ($_SESSION['cart'] as $item) {
+            $items[] = array();
+                $items['name'] = $item['nome'];
+                $items['amount'] = intval($item['qtd']);
+                $items['currency_id'] = 'BRL';
+                $items['value'] = (floatval($item['preco']) * 100);
+        }
+        
+        $metadata = array();
+        $metadata['custom_id'] = $idCompra;
+        $metadata['notification_url'] = BASE_URL.'pagamento/notificationBoleto';
+        
+        $shipping = array(
+            array(
+                'name' => 'FRETE',
+                'value' => ($valorFrete * 100)
+            )
+        );
+        
+        $body = array();
+        $body['metadata'] = $metadata;
+        $body['items'] = $items;
+        $body['shippings'] = $shipping;
+        
+        try {
+            $api = new Gerencianet\Gerencianet($options);
+            $charge = $api->createCharge(array(), $body);
+            if ($charge['code'] == '200'){
+                
+                //$array['date'] = $charge['data']['date_created'];
+                $code = $charge['data']['charge_id'];
+                //$array['reference'] = $charge['data']['external_reference'];
+                
+                $params = array();
+                $params['id'] = $code;
+                
+                $customer = array();
+                $customer['name'] = $name;
+                $customer['cpf'] = $cpf;
+                $customer['phone_number'] = $telefone;
+                
+                $bankingBillet = array();
+                $bankingBillet['expire_at'] = date('Y-m-d', strtotime('+4 days'));
+                $bankingBillet['customer'] = $customer;
+                $bankingBillet['message'] = 'Compra feita na NovaLoja';
+                
+                $payment = array();
+                $payment['banking_billet'] = $bankingBillet;
+                
+                $payBody = array();
+                $payBody['payment'] = $payment;
+                
+                try {
+                    $linkCharge = $api->payCharge($params, $payBody);
+                    if ($linkCharge['code'] == '200'){
+                        $link = $linkCharge['data']['link'];
+                        //$array['date'] = $linkCharge['data']['date_created'];
+                        $array['code'] = $linkCharge['data']['charge_id'];
+                        //$array['reference'] = $linkCharge['data']['external_reference'];
+                        
+                        Compras::atualizarComprasCodeTransaction($idCompra, $array['code'], $link);
+                        cartController::excluirSession();
+                        header("location: ".$link);
+                        exit();
+                    }
+                } catch (Exception $exc) {
+                    echo ("ERRO:");
+                    print_r($exc->getMessage());
+                    echo ("<br>");
+                    echo $exc->getTraceAsString();
+                    exit();
+                }
+            }
+        } catch (Exception $exc) {
+            echo ("ERRO:");
+            print_r($exc->getMessage());
+            echo ("<br>");
+            echo $exc->getTraceAsString();
+            exit();
+        }
+
         $mp = new MP($this->config['mpID'], $this->config['mpSecretKEY']);
         
         
-        $data = array(
-            'items' => array(),
-            'shipments' => array(),
-            'back_urls' => array(),
-            'notification_url' => BASE_URL.'pagamentoMP/notification',
-            'auto_return' => 'all',
-            'external_reference' => $idCompra
-        );
-        $data['shipments']['mode'] = "custom";
-        $data['shipments']['cost'] = $valorFrete;
-        $data['shipments']['receiver_address'] = array();
-        $data['shipments']['receiver_address']['zip_code'] = $cep;
-        $data['shipments']['receiver_address']['street_number'] = $numero;
-        $data['shipments']['receiver_address']['street_name'] = $rua;
-        $data['shipments']['receiver_address']['floor'] = $complemento;
-        $data['back_urls']['success'] = BASE_URL.'pagamentoMP/obrigadoSuccess';
-        $data['back_urls']['pending'] = BASE_URL.'pagamentoMP/obrigadoPending';
-        $data['back_urls']['failure'] = BASE_URL.'pagamentoMP/obrigadoFailure';
+    //    $data = array(
+    //        'items' => array(),
+    //        'shipments' => array(),
+    //        'back_urls' => array(),
+    //        'notification_url' => BASE_URL.'pagamentoMP/notification',
+    //        'auto_return' => 'all',
+    //        'external_reference' => $idCompra
+    //    );
+    //    $data['shipments']['mode'] = "custom";
+    //    $data['shipments']['cost'] = $valorFrete;
+    //    $data['shipments']['receiver_address'] = array();
+    //    $data['shipments']['receiver_address']['zip_code'] = $cep;
+    //    $data['shipments']['receiver_address']['street_number'] = $numero;
+    //    $data['shipments']['receiver_address']['street_name'] = $rua;
+    //    $data['shipments']['receiver_address']['floor'] = $complemento;
+    //    $data['back_urls']['success'] = BASE_URL.'pagamentoMP/obrigadoSuccess';
+    //    $data['back_urls']['pending'] = BASE_URL.'pagamentoMP/obrigadoPending';
+    //    $data['back_urls']['failure'] = BASE_URL.'pagamentoMP/obrigadoFailure';
         
-        foreach ($_SESSION['cart'] as $item) {
-            $data['items'][] = array(
-                'title' => $item['nome'],
-                'quantity' => intval($item['qtd']),
-                'currency_id' => 'BRL',
-                'unit_price' => floatval($item['preco'])
-            );
-        }
-        $link = $mp->create_preference($data);
+    //    foreach ($_SESSION['cart'] as $item) {
+    //        $data['items'][] = array(
+    //            'title' => $item['nome'],
+    //            'quantity' => intval($item['qtd']),
+    //            'currency_id' => 'BRL',
+    //            'unit_price' => floatval($item['preco'])
+    //        );
+    //    }
+    //    $link = $mp->create_preference($data);
         
-        if ($link['status'] == "201"){
-            $response = $link['response']['sandbox_init_point'];
-            $array['date'] = $link['response']['date_created'];
-            $array['code'] = $link['response']['id'];
-            $array['reference'] = $link['response']['external_reference'];
-            Compras::atualizarComprasCodeTransaction($idCompra, $array['code']);
-        } else {
-            $error = array();
-            $error['error'] = TRUE;
-            $error['msg'] = 'Tente Novamente mais Tarde!';
-            $this->index($error);
-            exit();
-        }
+    //    if ($link['status'] == "201"){
+    //        $response = $link['response']['sandbox_init_point'];
+    //        $array['date'] = $link['response']['date_created'];
+    //        $array['code'] = $link['response']['id'];
+    //        $array['reference'] = $link['response']['external_reference'];
+    //        Compras::atualizarComprasCodeTransaction($idCompra, $array['code']);
+    //    } else {
+    //        $error = array();
+    //        $error['error'] = TRUE;
+    //        $error['msg'] = 'Tente Novamente mais Tarde!';
+    //        $this->index($error);
+    //        exit();
+    //    }
         
-        echo ("<pre>");
-        print_r($link);
-        echo ("</pre>");
-        exit();
+    //    echo ("<pre>");
+    //    print_r($link);
+    //    echo ("</pre>");
+    //    exit();
         
-        header("location: ".$response);
-        //MercadoPago::encaminharMercadoPago($idCompra, $_SESSION['cart'], $valorFrete, $cartaoPag, $cartaoEnd);
+    //    header("location: ".$response);
+        //GerenciaNet::encaminharMercadoPago($idCompra, $_SESSION['cart'], $valorFrete, $cartaoPag, $cartaoEnd);
         
     }
 }

@@ -34,10 +34,11 @@ class Compras extends model{
         return $this->result();
     }
     
-    public static function atualizarComprasCodeTransaction($idCompra, $code){
+    public static function atualizarComprasCodeTransaction($idCompra, $code, $link = null){
         $tabela = "compras";
         $dados = array (
-            "code_transaction" => $code
+            "code_transaction" => $code,
+            "link_pagamento" => $link
         );
         $where = array (
             "id" => $idCompra

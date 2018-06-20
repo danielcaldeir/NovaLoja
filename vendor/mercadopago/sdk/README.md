@@ -106,6 +106,7 @@ print_r ($preference);
 ```php
 $filters = array (
         "id"=>null,
+        "site_id"=>null,
         "external_reference"=>null
     );
 

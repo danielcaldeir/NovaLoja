@@ -8,27 +8,20 @@
 // Include Mercadopago library
 require_once "../../lib/mercadopago.php";
 
-// Create an instance with your MercadoPago credentials (CLIENT_ID and CLIENT_SECRET):
-// Argentina: https://www.mercadopago.com/mla/herramientas/aplicaciones
+// Create an instance with your MercadoPago credentials (CLIENT_ID and CLIENT_SECRET): 
+// Argentina: https://www.mercadopago.com/mla/herramientas/aplicaciones 
 // Brasil: https://www.mercadopago.com/mlb/ferramentas/aplicacoes
-// Mexico: https://www.mercadopago.com/mlm/herramientas/aplicaciones
-// Venezuela: https://www.mercadopago.com/mlv/herramientas/aplicaciones
-// Colombia: https://www.mercadopago.com/mco/herramientas/aplicaciones
-// Chile: https://www.mercadopago.com/mlc/herramientas/aplicaciones
+// Mexico: https://www.mercadopago.com/mlm/herramientas/aplicaciones 
+// Venezuela: https://www.mercadopago.com/mlv/herramientas/aplicaciones 
 $mp = new MP("CLIENT_ID", "CLIENT_SECRET");
 
 $params = ["access_token" => $mp->get_access_token()];
 
-// Check mandatory parameters
-if (!isset($_GET["id"], $_GET["topic"]) || !ctype_digit($_GET["id"])) {
-	http_response_code(400);
-	return;
-}
 
 // Get the payment reported by the IPN. Glossary of attributes response in https://developers.mercadopago.com
 if($_GET["topic"] == 'payment'){
-	$payment_info = $mp->get("/v1/payments/" . $_GET["id"], $params, false);
-	$merchant_order_info = $mp->get("/merchant_orders/" . $payment_info["response"]["order"]["id"], $params, false);
+	$payment_info = $mp->get("/collections/notifications/" . $_GET["id"], $params, false);
+	$merchant_order_info = $mp->get("/merchant_orders/" . $payment_info["response"]["collection"]["merchant_order_id"], $params, false);
 // Get the merchant_order reported by the IPN. Glossary of attributes response in https://developers.mercadopago.com	
 }else if($_GET["topic"] == 'merchant_order'){
 	$merchant_order_info = $mp->get("/merchant_orders/" . $_GET["id"], $params, false);

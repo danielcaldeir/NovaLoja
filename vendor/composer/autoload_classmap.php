@@ -6,5 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'MercadoPago\\' => array($vendorDir . '/mercadopago/sdk/lib'),
+    'MP' => $vendorDir . '/mercadopago/sdk/lib/mercadopago.php',
+    'MPRestClient' => $vendorDir . '/mercadopago/sdk/lib/mercadopago.php',
+    'MercadoPagoException' => $vendorDir . '/mercadopago/sdk/lib/mercadopago.php',
 );

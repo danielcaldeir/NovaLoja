@@ -4,37 +4,75 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit6a6a7f44a18749e1d3274a1bc8ba3062
+class ComposerStaticInitf00292958b7c022f8b6031fb2438f95e
 {
+    public static $files = array (
+        'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
+        'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
+        '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
         'P' => 
         array (
+            'Psr\\Http\\Message\\' => 17,
             'PagSeguro\\' => 10,
+        ),
+        'G' => 
+        array (
+            'GuzzleHttp\\Psr7\\' => 16,
+            'GuzzleHttp\\Promise\\' => 19,
+            'GuzzleHttp\\' => 11,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'Psr\\Http\\Message\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-message/src',
+        ),
         'PagSeguro\\' => 
         array (
             0 => __DIR__ . '/..' . '/pagseguro/pagseguro-php-sdk/source',
         ),
-    );
-    
-    public static $prefixPsr0 = array (
-        'MercadoPago\\' => 
+        'GuzzleHttp\\Psr7\\' => 
         array (
-            0 => __DIR__ . '/..' . '/mercadoPago/sdk/lib',
+            0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
         ),
+        'GuzzleHttp\\Promise\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/promises/src',
+        ),
+        'GuzzleHttp\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
+        ),
+    );
+
+    public static $prefixesPsr0 = array (
+        'G' => 
+        array (
+            'Gerencianet' => 
+            array (
+                0 => __DIR__ . '/..' . '/gerencianet/gerencianet-sdk-php/src',
+            ),
+        ),
+    );
+
+    public static $classMap = array (
+        'MP' => __DIR__ . '/..' . '/mercadopago/sdk/lib/mercadopago.php',
+        'MPRestClient' => __DIR__ . '/..' . '/mercadopago/sdk/lib/mercadopago.php',
+        'MercadoPagoException' => __DIR__ . '/..' . '/mercadopago/sdk/lib/mercadopago.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit6a6a7f44a18749e1d3274a1bc8ba3062::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit6a6a7f44a18749e1d3274a1bc8ba3062::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit6a6a7f44a18749e1d3274a1bc8ba3062::$prefixPsr0;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitf00292958b7c022f8b6031fb2438f95e::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitf00292958b7c022f8b6031fb2438f95e::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitf00292958b7c022f8b6031fb2438f95e::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInitf00292958b7c022f8b6031fb2438f95e::$classMap;
 
         }, null, ClassLoader::class);
-        
     }
 }

@@ -14,19 +14,17 @@
         // Include Mercadopago library
         require_once "../../lib/mercadopago.php";
 
-        // Create an instance with your MercadoPago credentials (CLIENT_ID and CLIENT_SECRET):
-        // Argentina: https://www.mercadopago.com/mla/herramientas/aplicaciones
+        // Create an instance with your MercadoPago credentials (CLIENT_ID and CLIENT_SECRET): 
+        // Argentina: https://www.mercadopago.com/mla/herramientas/aplicaciones 
         // Brasil: https://www.mercadopago.com/mlb/ferramentas/aplicacoes
-        // Mexico: https://www.mercadopago.com/mlm/herramientas/aplicaciones
-        // Venezuela: https://www.mercadopago.com/mlv/herramientas/aplicaciones
-        // Colombia: https://www.mercadopago.com/mco/herramientas/aplicaciones
-        // Chile: https://www.mercadopago.com/mlc/herramientas/aplicaciones
+        // Mexico: https://www.mercadopago.com/mlm/herramientas/aplicaciones 
+        // Venezuela: https://www.mercadopago.com/mlv/herramientas/aplicaciones 
         $mp = new MP("CLIENT_ID", "CLIENT_SECRET");
 
         // Sets the filters you want
         $filters = array(
             "installments" => 12,
-            "description" => "product_name",
+            "reason" => "product_name",
             "operation_type" => "regular_payment"
         );
 
@@ -41,9 +39,9 @@
             foreach ($searchResult["response"]["results"] as $payment) {
                 ?>
                 <tr>
-                    <td><?php echo $payment["id"]; ?></td>
-                    <td><?php echo $payment["external_reference"]; ?></td>
-                    <td><?php echo $payment["status"]; ?></td>
+                    <td><?php echo $payment["collection"]["id"]; ?></td>
+                    <td><?php echo $payment["collection"]["external_reference"]; ?></td>
+                    <td><?php echo $payment["collection"]["status"]; ?></td>
                 </tr>
                 <?php
             }

@@ -16,6 +16,9 @@ if(ENVIRONMENT == 'development') {
         $config['pagseguro_email'] = 'danielcaldeir@gmail.com';
         $config['mpID'] = '8991433061703497';
         $config['mpSecretKEY'] = 'Fh7xrEeOj9M7JsO4gVEB34i7JbEvSLp7';
+        $config['gerenciaNetID'] = '8991433061703497';
+        $config['gerenciaNetSecretKey'] = 'Fh7xrEeOj9M7JsO4gVEB34i7JbEvSLp7';
+        $config['gerenciaNetSandBox'] = true;
 } else {
 	define("BASE_URL", "http://localhost/NovaLoja/");
 	$config['dbname'] = 'loja';

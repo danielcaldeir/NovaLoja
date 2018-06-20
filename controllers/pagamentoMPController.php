@@ -192,7 +192,7 @@ class pagamentoMPController extends controller {
             //$array['lastEventDate'] = $result->getLastEventDate();
             //$array['installmentCount'] = $result->getInstallmentCount();
             //$array['cancelationSource'] = $result->getCancelationSource();
-            Compras::atualizarComprasCodeTransaction($idCompra, $array['code']);
+            Compras::atualizarComprasCodeTransaction($idCompra, $array['code'], $response);
         } else {
             $error = array();
             $error['error'] = TRUE;
