@@ -16,6 +16,13 @@ class cartController extends controller{
     private $user;
     
     public function __construct() {
+        $this->user = array();
+        if (isset($_SESSION['user'])){
+            $this->user['nome'] = $_SESSION['user']['nome'];
+            $this->user['email'] = $_SESSION['user']['email'];
+            $this->user['senha'] =$_SESSION['user']['senha'];
+            $this->user['telefone'] = $_SESSION['user']['telefone'];
+        }
         parent::__construct();
     }
     

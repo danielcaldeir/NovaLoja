@@ -61,14 +61,27 @@ class Produtos extends model{
     private $diametro;
     
     //put your code here
+    private function incluirElementos($elementos = array()) {
+        if (count($elementos) == 1){
+            foreach ($elementos as $item) {
+                $this->id = $item['id'];             $this->id_categoria = $item['id_categoria'];      $this->id_marca = $item['id_marca'];
+                $this->nome = $item['nome'];         $this->descricao = $item['descricao'];            $this->estoque = $item['estoque'];
+                $this->preco = $item['preco'];       $this->preco_ant = $item['preco_ant'];            $this->avalia = $item['avalia'];
+                $this->promo = $item['promo'];       $this->destaque = $item['destaque'];              $this->top_vendido = $item['top_vendido'];
+                $this->opcao = $item['opcao'];       $this->novo_produto = $item['novo_produto'];      $this->peso = $item['peso'];
+                $this->altura = $item['altura'];     $this->largura = $item['largura'];                $this->comprimento = $item['comprimento'];
+                $this->diametro = $item['diametro'];
+            }
+        }
+    }
+    
     public function getTotalProdutos($where = array()) {
         $tabela = "produtos as prd";
         $colunas = array("COUNT(*) AS C");
         $this->selecionarTabelas($tabela, $colunas, $where);
         $array = $this->result();
-        foreach ($array as $item) {
-            $valor = $item["C"];
-        }
+        foreach ($array as $item) 
+            { $valor = $item["C"]; }
         return $valor;
     }
     
@@ -78,9 +91,8 @@ class Produtos extends model{
         $where['promo'] = 1;
         $this->selecionarTabelas($tabela, $colunas, $where);
         $array = $this->result();
-        foreach ($array as $item) {
-            $valor = $item["C"];
-        }
+        foreach ($array as $item) 
+            { $valor = $item["C"]; }
         return $valor;
     }
     
@@ -90,11 +102,10 @@ class Produtos extends model{
         $where_cond = "AND";
         $groupBY = array("GROUP BY ID_MARCA");
         $this->selecionarTabelas($tabela, $colunas, $where, $where_cond, $groupBY);
-        if($this->numRows() > 0){
-            $array = $this->result();
-        } else {
-            $array = array();
-        }
+        if($this->numRows() > 0)
+            { $array = $this->result(); } 
+        else 
+            { $array = array(); }
         return $array;
     }
     
@@ -104,11 +115,10 @@ class Produtos extends model{
         $where_cond = "AND";
         $groupBY = array("GROUP BY AVALIA");
         $this->selecionarTabelas($tabela, $colunas, $where, $where_cond, $groupBY);
-        if($this->numRows() > 0){
-            $array = $this->result();
-        } else {
-            $array = array();
-        }
+        if($this->numRows() > 0)
+            { $array = $this->result(); } 
+        else 
+            { $array = array(); }
         return $array;
     }
     
@@ -118,11 +128,10 @@ class Produtos extends model{
         $where_cond = "AND";
         $groupBY = array("GROUP BY ID_CATEGORIA");
         $this->selecionarTabelas($tabela, $colunas, $where, $where_cond, $groupBY);
-        if($this->numRows() > 0){
-            $array = $this->result();
-        } else {
-            $array = array();
-        }
+        if($this->numRows() > 0)
+            { $array = $this->result(); } 
+        else 
+            { $array = array(); }
         return $array;
     }
     
@@ -131,9 +140,8 @@ class Produtos extends model{
         $colunas = array("MAX(preco) AS MaxPreco");
         $this->selecionarTabelas($tabela, $colunas);
         $array = $this->result();
-        foreach ($array as $item) {
-            $valor = $item["MaxPreco"];
-        }
+        foreach ($array as $item) 
+            { $valor = $item["MaxPreco"]; }
         return $valor;
     }
     
@@ -142,9 +150,8 @@ class Produtos extends model{
         $colunas = array("MIN(preco) AS MinPreco");
         $this->selecionarTabelas($tabela, $colunas);
         $array = $this->result();
-        foreach ($array as $item) {
-            $valor = $item["MinPreco"];
-        }
+        foreach ($array as $item) 
+            { $valor = $item["MinPreco"]; }
         return $valor;
     }
     
@@ -154,20 +161,82 @@ class Produtos extends model{
         $colunas = array("prd.id as id","prd.id_categoria","prd.id_marca","prd.nome","descricao","estoque","preco","preco_ant","avalia","destaque","promo","top_vendido","novo_produto","opcao","mar.nome as marca_nome","cat.nome as categoria_nome");
         $where_cond = "AND";
         $groupBy = array();
-        if ($random == true){
-            $groupBy[] = ("ORDER BY RAND()");
-        }else{
-            //$groupBy = array("order by prd.id, op.id");
-            $groupBy[] = ("ORDER BY prd.id, prd.id_categoria, prd.id_marca");
-        }
+        if ($random == true)
+            { $groupBy[] = ("ORDER BY RAND()"); } 
+        else 
+            { $groupBy[] = ("ORDER BY prd.id, prd.id_categoria, prd.id_marca"); }
         $groupBy[] = ("LIMIT $offset, $limit");
         $this->selecionarTabelas($tabela, $colunas, $where, $where_cond, $groupBy);
-        if($this->numRows() > 0){
-            $array = $this->result();
+        if($this->numRows() > 0)
+            { $array = $this->result(); } 
+        else 
+            { $array = array(); }
+        return $array;
+    }
+    
+    public function atualizarProdutoBandeira($destaque, $promo, $top_vendido, $novo_produto, $id_produto) {
+        $tabela = "produtos";
+        $dados = array();
+            $dados["destaque"] = $destaque;
+            $dados["promo"] = $promo;
+            $dados["top_vendido"] = $top_vendido;
+            $dados["novo_produto"] = $novo_produto;
+        
+        $where = array();
+            $where["id"] = $id_produto;
+        $this->update($tabela, $dados, $where);
+    }
+    
+    public function atualizarProdutoPrincipal($id_categoria, $id_marca, $nome, $descricao, $estoque, $preco_ant, $preco, $id_produto) {
+        $tabela = "produtos";
+        $dados = array ();
+            $dados["id_categoria"] = $id_categoria;
+            $dados["id_marca"] = $id_marca;
+            $dados["nome"] = $nome;
+            $dados["descricao"] = $descricao;
+            $dados["estoque"] = $estoque;
+            $dados["preco_ant"] = $preco_ant;
+            $dados["preco"] = $preco;
+            $dados["novo_produto"] = 0;
+        
+        $where = array ( "id" => $id_produto );
+        $this->update($tabela, $dados, $where);
+    }
+    
+    public function inserirProdutoPrincipal($produto = array() ){//$id_categoria, $id_marca, $nome, $descricao, $estoque, $preco, $peso, $altura, $largura, $comprimento, $diametro) {
+        if (is_array($produto) && count($produto) > 0){
+            $tabela = "produtos";
+            $dados = array ();
+                $dados["id_categoria"] = $produto['id_categoria'];
+                $dados["id_marca"] = $produto['id_marca'];
+                $dados["nome"] = $produto['nome'];
+                $dados["descricao"] = $produto['descricao'];
+                $dados["estoque"] = $produto['estoque'];
+                $dados["preco_ant"] = 0;
+                $dados["preco"] = $produto['preco'];
+                $dados["novo_produto"] = 1;
+                $dados["peso"] = $produto['peso'];
+                $dados["altura"] = $produto['altura'];
+                $dados["largura"] = $produto['largura'];
+                $dados["comprimento"] = $produto['comprimento'];
+                $dados["diametro"] = $produto['diametro'];
+
+            $this->insert($tabela, $dados);
+            $this->query("SELECT LAST_INSERT_ID() as ID");
+            $array = $this->array;
         } else {
             $array = array();
         }
+        
         return $array;
+    }
+    
+    public function deletarProduto($id_produto) {
+        $tabela = "produtos";
+        $where = array ();
+            $where["id"] = $id_produto;
+        $this->delete($tabela, $where);
+        return null;
     }
     
     public function selecionarALLProdutos($offset = 0, $limit = 3, $where = array()){
@@ -176,105 +245,76 @@ class Produtos extends model{
         $where_cond = "AND";
         $groupBy = array("LIMIT $offset, $limit");
         $this->selecionarTabelas($tabela, $colunas, $where, $where_cond, $groupBy);
-        if($this->numRows() > 0){
-            $array = $this->result();
-        } else {
-            $array = array();
-        }
+        if($this->numRows() > 0)
+            { $array = $this->result(); } 
+        else 
+            { $array = array(); }
         return $array;
     }
     
     public function selecionarProdutosID($id) {
         $tabela = "produtos";
         $colunas = array("id","id_categoria","id_marca","nome","descricao","estoque","preco","preco_ant","avalia","destaque","promo","top_vendido","novo_produto","opcao","peso","altura","largura","comprimento","diametro");
-        $where = array(
-            "id" => $id
-        );
+        $where = array( "id" => $id );
         $this->selecionarTabelas($tabela, $colunas, $where);
         if ($this->numRows > 0){
             $array = $this->result();
-            foreach ($array as $item) {
-                $this->id = $item['id'];
-                $this->id_categoria = $item['id_categoria'];
-                $this->id_marca = $item['id_marca'];
-                $this->nome = $item['nome'];
-                $this->descricao = $item['descricao'];
-                $this->estoque = $item['estoque'];
-                $this->preco = $item['preco'];
-                $this->preco_ant = $item['preco_ant'];
-                $this->avalia = $item['avalia'];
-                $this->destaque = $item['destaque'];
-                $this->promo = $item['promo'];
-                $this->top_vendido = $item['top_vendido'];
-                $this->novo_produto = $item['novo_produto'];
-                $this->opcao = $item['opcao'];
-                $this->peso = $item['peso'];
-                $this->altura = $item['altura'];
-                $this->largura = $item['largura'];
-                $this->comprimento = $item['comprimento'];
-                $this->diametro = $item['diametro'];
-            }
-        } else{
+            $this->incluirElementos($array);
+            //foreach ($array as $item) {
+            //    $this->id = $item['id'];             $this->id_categoria = $item['id_categoria'];      $this->id_marca = $item['id_marca'];
+            //    $this->nome = $item['nome'];         $this->descricao = $item['descricao'];            $this->estoque = $item['estoque'];
+            //    $this->preco = $item['preco'];       $this->preco_ant = $item['preco_ant'];            $this->avalia = $item['avalia'];
+            //    $this->promo = $item['promo'];       $this->destaque = $item['destaque'];              $this->top_vendido = $item['top_vendido'];
+            //    $this->opcao = $item['opcao'];       $this->novo_produto = $item['novo_produto'];      $this->peso = $item['peso'];
+            //    $this->altura = $item['altura'];     $this->largura = $item['largura'];                $this->comprimento = $item['comprimento'];
+            //    $this->diametro = $item['diametro'];
+            //}
+        } else {
             $array = array();
         }
         return $array;
     }
     
-    public function getID() {
-        return $this->id;
+    public function selecionarProdutosIDMarca($id_marca) {
+        $tabela = "produtos";
+        $colunas = array("id","id_categoria","id_marca","nome","descricao","estoque","preco","preco_ant","avalia","destaque","promo","top_vendido","novo_produto","opcao","peso","altura","largura","comprimento","diametro");
+        $where = array( "id_marca" => $id_marca );
+        $this->selecionarTabelas($tabela, $colunas, $where);
+        if ($this->numRows > 0){
+            $array = $this->result();
+            $this->incluirElementos($array);
+            //foreach ($array as $item) {
+            //    $this->id = $item['id'];             $this->id_categoria = $item['id_categoria'];      $this->id_marca = $item['id_marca'];
+            //    $this->nome = $item['nome'];         $this->descricao = $item['descricao'];            $this->estoque = $item['estoque'];
+            //    $this->preco = $item['preco'];       $this->preco_ant = $item['preco_ant'];            $this->avalia = $item['avalia'];
+            //    $this->promo = $item['promo'];       $this->destaque = $item['destaque'];              $this->top_vendido = $item['top_vendido'];
+            //    $this->opcao = $item['opcao'];       $this->novo_produto = $item['novo_produto'];      $this->peso = $item['peso'];
+            //    $this->altura = $item['altura'];     $this->largura = $item['largura'];                $this->comprimento = $item['comprimento'];
+            //    $this->diametro = $item['diametro'];
+            //}
+        } else {
+            $array = array();
+        }
+        return $array;
     }
-    public function getIDCategoria() {
-        return $this->id_categoria;
-    }
-    public function getIDMarca() {
-        return $this->id_marca;
-    }
-    public function getNome() {
-        return $this->nome;
-    }
-    public function getDescricao() {
-        return $this->descricao;
-    }
-    public function getEstoque() {
-        return $this->estoque;
-    }
-    public function getPreco() {
-        return $this->preco;
-    }
-    public function getPrecoAnt() {
-        return $this->preco_ant;
-    }
-    public function getAvalia() {
-        return $this->avalia;
-    }
-    public function getDestaque() {
-        return $this->destaque;
-    }
-    public function getPromo() {
-        return $this->promo;
-    }
-    public function getTopVendido() {
-        return $this->top_vendido;
-    }
-    public function getNovoProduto() {
-        return $this->novo_produto;
-    }
-    public function getOpcao() {
-        return $this->opcao;
-    }
-    public function getPeso() {
-        return $this->peso;
-    }
-    public function getAltura() {
-        return $this->altura;
-    }
-    public function getLargura() {
-        return $this->largura;
-    }
-    public function getComprimento() {
-        return $this->comprimento;
-    }
-    public function getDiametro() {
-        return $this->diametro;
-    }
+    
+    public function getID() { return $this->id; }
+    public function getIDCategoria() { return $this->id_categoria; }
+    public function getIDMarca() { return $this->id_marca; }
+    public function getNome() { return $this->nome; }
+    public function getDescricao() { return $this->descricao; }
+    public function getEstoque() { return $this->estoque; }
+    public function getPreco() { return $this->preco; }
+    public function getPrecoAnt() { return $this->preco_ant; }
+    public function getAvalia() { return $this->avalia; }
+    public function getDestaque() { return $this->destaque; }
+    public function getPromo() { return $this->promo; }
+    public function getTopVendido() { return $this->top_vendido; }
+    public function getNovoProduto() { return $this->novo_produto; }
+    public function getOpcao() { return $this->opcao; }
+    public function getPeso() { return $this->peso; }
+    public function getAltura() { return $this->altura; }
+    public function getLargura() { return $this->largura; }
+    public function getComprimento() { return $this->comprimento; }
+    public function getDiametro() { return $this->diametro; }
 }

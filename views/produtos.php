@@ -65,11 +65,12 @@ if (!empty($_SESSION['cart'][$id] ) ){
         <strong><?php echo($opcoes['nomeOpcao']);?></strong>: <?php echo($opcoes['valor']);?><br>
         <?php endforeach;?>
         <?php 
-        echo("<pre>");
-        foreach ($produto_info['opcoes'] as $opcoes) {
-            print_r($opcoes);
-        }
-        echo("</pre>");?>
+        //echo("<pre>");
+        //foreach ($produto_info['opcoes'] as $opcoes) {
+        //    print_r($opcoes);
+        //}
+        //echo("</pre>");
+        ?>
     </div>
     <div class="col-sm-7">
         <h3><?php $this->lang->get('PRODUCT_REVIEWS'); ?></h3>
@@ -83,10 +84,11 @@ if (!empty($_SESSION['cart'][$id] ) ){
             <hr/>
         <?php endforeach;?>
         <?php 
-        echo("<pre>");
-        foreach ($produto_info['avalia'] as $avalia) {
-            print_r($avalia);
-        }
-        echo("</pre>");?>
+        //echo("<pre>");
+        //foreach ($produto_info['avalia'] as $avalia) {
+        //    print_r($avalia);
+        //}
+        //echo("</pre>");
+        ?>
     </div>
 </div>

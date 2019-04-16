@@ -106,7 +106,7 @@ class boletoController extends controller{
         $cidade = addslashes($_POST['cidade']);
         $estado = addslashes($_POST['estado']);
         
-        $uid = GerenciaNet::verificarEmail($email);
+        $uid = Boleto::verificarEmail($email);
         
         if ($uid == -1) {
             $error = array();
@@ -137,7 +137,7 @@ class boletoController extends controller{
         echo("<br> TOTAL:");
         echo($total);
         echo("<br>");
-        $idCompra = GerenciaNet::incluirCompras($_SESSION['cart'], $_SESSION['frete'], $uid, $total);
+        $idCompra = Boleto::incluirCompras($_SESSION['cart'], $_SESSION['frete'], $uid, $total);
         //$idCompra = intval("31");
         
         //require './vendor/mercadopago/sdk/lib/mercadopago.php';
@@ -194,7 +194,7 @@ class boletoController extends controller{
     //    exit();
         
     //    header("location: ".$response);
-        //GerenciaNet::encaminharMercadoPago($idCompra, $_SESSION['cart'], $valorFrete, $cartaoPag, $cartaoEnd);
+        //MercadoPago::encaminharMercadoPago($idCompra, $_SESSION['cart'], $valorFrete, $cartaoPag, $cartaoEnd);
             
     }
     

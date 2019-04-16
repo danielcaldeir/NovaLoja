@@ -37,7 +37,7 @@ class model {
                 $dados[] = $chave." = '".addslashes($valor)."'";
             }
             $sql = $sql.implode(", ", $dados);
-            //echo $sql;
+            echo $sql;
             $this->pdo->query($sql);
         }
     }
@@ -63,8 +63,8 @@ class model {
         }
     }
     
-    public function delete($table, $data, $where = array(), $where_cond = "AND"){
-        if (!empty($table) && (is_array($data) && count($data)) && is_array($where)){
+    public function delete($table, $where = array(), $where_cond = "AND"){
+        if (!empty($table) && is_array($where)){
             $sql = "DELETE FROM ".$table;
             if (count($where) > 0) {
                 $dados = array();
@@ -75,7 +75,13 @@ class model {
                 $sql = $sql.implode(" ".$where_cond." ", $dados);
             }
             echo $sql;
-            //$this->pdo->query($sql);
+            try {
+                return $this->pdo->query($sql);
+            } catch (PDOException $exc) {
+                echo $exc->getTraceAsString();
+                echo ("<br><br>");
+                echo $exc->getMessage();
+            }
         }
     }
     

@@ -26,11 +26,10 @@ class ProdutosOpcoes extends model {
         //$groupBy = array("order by prd.id, op.id");
         $groupBy = array("GROUP BY op.id, prd_op.valor","ORDER BY op.id, prd_op.valor");
         $this->selecionarTabelas($tabela, $colunas, $where, $where_cond, $groupBy);
-        if($this->numRows() > 0){
-            $array = $this->result();
-        } else {
-            $array = array();
-        }
+        if($this->numRows() > 0) 
+            { $array = $this->result(); } 
+        else 
+            { $array = array(); }
         return $array;
     }
     
@@ -52,33 +51,15 @@ class ProdutosOpcoes extends model {
   //  private $opcao;
   //  produtos as prd
         $where = array();
-        if (!empty($consultas['prd.id'])){
-            $where['prd.id'] = $consultas['prd.id'];
-        }
-        if (!empty($consultas['prd.nome'])){
-            $where['prd.nome'] = $consultas['prd.nome'];
-        }
-        if (!empty($consultas['id_categoria'])){
-            $where['prd.id_categoria'] = $consultas['id_categoria'];
-        }
-        if (!empty($consultas['id_marca'])){
-            $where['prd.id_marca'] = $consultas['id_marca'];
-        }
-        if (!empty($consultas['avalia'])){
-            $where['prd.avalia'] = $consultas['avalia'];
-        }
-        if (!empty($consultas['destaque'])){
-            $where['prd.destaque'] = $consultas['destaque'];
-        }
-        if (!empty($consultas['promo'])){
-            $where['prd.promo'] = $consultas['promo'];
-        }
-        if (!empty($consultas['top_vendido'])){
-            $where['prd.top_vendido'] = $consultas['top_vendido'];
-        }
-        if (!empty($consultas['preco'])){
-            $where['prd.preco'] = $consultas['preco'];
-        }
+        if (!empty($consultas['prd.id']))       { $where['prd.id'] = $consultas['prd.id']; }
+        if (!empty($consultas['prd.nome']))     { $where['prd.nome'] = $consultas['prd.nome']; }
+        if (!empty($consultas['id_categoria'])) { $where['prd.id_categoria'] = $consultas['id_categoria']; }
+        if (!empty($consultas['id_marca']))     { $where['prd.id_marca'] = $consultas['id_marca']; }
+        if (!empty($consultas['avalia']))       { $where['prd.avalia'] = $consultas['avalia']; }
+        if (!empty($consultas['destaque']))     { $where['prd.destaque'] = $consultas['destaque']; }
+        if (!empty($consultas['promo']))        { $where['prd.promo'] = $consultas['promo']; }
+        if (!empty($consultas['top_vendido']))  { $where['prd.top_vendido'] = $consultas['top_vendido']; }
+        if (!empty($consultas['preco']))        { $where['prd.preco'] = $consultas['preco']; }
         //$colunas = array("op.id","op.nome as nomeOP","prd_op.valor","count(*) as QTD");
         //$groupBy = array("Group by op.id, prd_op.valor");
         $array = $this->selecionarAllProdutosJoinProdutosOpcoes($where);
@@ -96,30 +77,36 @@ class ProdutosOpcoes extends model {
     public function selecionarAllProdutosOpcoesJoinOpcoesIDProduto($id_produto) {
         $tabela = "produtos_opcoes as prd_op INNER JOIN opcoes as op ON prd_op.id_opcao = op.id";
         $colunas = array("prd_op.id","prd_op.id_produto","prd_op.id_opcao","prd_op.valor","op.nome as nomeOpcao");
-        $where = array(
-            "id_produto" => $id_produto
-        );
+        $where = array( "id_produto" => $id_produto );
         $this->selecionarTabelas($tabela, $colunas, $where);
-        if ($this->numRows > 0){
-            $array = $this->result();
-        } else{
-            $array = array();
-        }
+        if ($this->numRows > 0)
+            { $array = $this->result(); } 
+        else 
+            { $array = array(); }
         return $array;
     }
     
     public function selecionarProdutosOpcoesIDProduto($id_produto) {
         $tabela = "produtos_opcoes";
         $colunas = array("id","id_produto","id_opcao","valor");
-        $where = array(
-            "id_produto" => $id_produto
-        );
+        $where = array( "id_produto" => $id_produto );
         $this->selecionarTabelas($tabela, $colunas, $where);
-        if ($this->numRows > 0){
-            $array = $this->result();
-        } else{
-            $array = array();
-        }
+        if ($this->numRows > 0) 
+            { $array = $this->result(); } 
+        else 
+            { $array = array(); }
+        return $array;
+    }
+    
+    public function selecionarProdutosOpcoesIDOpcao($id_opcao) {
+        $tabela = "produtos_opcoes";
+        $colunas = array("id","id_produto","id_opcao","valor");
+        $where = array( "id_opcao" => $id_opcao );
+        $this->selecionarTabelas($tabela, $colunas, $where);
+        if ($this->numRows > 0) 
+            { $array = $this->result(); } 
+        else 
+            { $array = array(); }
         return $array;
     }
     
@@ -130,12 +117,42 @@ class ProdutosOpcoes extends model {
         $where = array('valor' => $valor);
         $groupBy = array();
         $this->selecionarTabelas($tabela, $colunas, $where, $where_cond, $groupBy);
-        if($this->numRows() > 0){
-            $array = $this->result();
-        } else {
-            $array = array();
-        }
+        if($this->numRows() > 0) 
+            { $array = $this->result(); } 
+        else 
+            { $array = array(); }
         return $array;
+    }
+    
+    public function atualizarProdutoOpcao($id_produto, $id_opcao, $valor, $id) {
+        $tabela = "produtos_opcoes";
+        $dados = array ();
+            $dados["id_produto"] = $id_produto;
+            $dados["id_opcao"] = $id_opcao;
+            $dados["valor"] = $valor;
+        
+        $where = array ( "id" => $id );
+        $this->update($tabela, $dados, $where);
+    }
+    
+    public function inserirProdutoOpcao($id_produto, $id_opcao, $valor) {
+        $tabela = "produtos_opcoes";
+        $dados = array ();
+            $dados["id_produto"] = $id_produto;
+            $dados["id_opcao"] = $id_opcao;
+            $dados["valor"] = $valor;
+        
+        $this->insert($tabela, $dados);
+        $this->query("SELECT LAST_INSERT_ID() as ID");
+        return $this->array;
+    }
+    
+    public function deletarProdutoOpcao($id) {
+        $tabela = "produtos_opcoes";
+        $where = array ();
+        $where['id'] = $id;
+        $this->delete($tabela, $where);
+        return null;
     }
     
     protected function selecionarALLProdutosOpcoes($where = array()){
@@ -144,20 +161,17 @@ class ProdutosOpcoes extends model {
         $where_cond = "AND";
         $groupBy = array();
         $this->selecionarTabelas($tabela, $colunas, $where, $where_cond, $groupBy);
-        if($this->numRows() > 0){
-            $array = $this->result();
-        } else {
-            $array = array();
-        }
+        if($this->numRows() > 0)
+            { $array = $this->result(); } 
+        else 
+            { $array = array(); }
         return $array;
     }
     
     public function selecionarProdutosOpcoesID($id) {
         $tabela = "produtos_opcoes";
         $colunas = array("id","id_produto","id_opcao","valor");
-        $where = array(
-            "id" => $id
-        );
+        $where = array( "id" => $id );
         $this->selecionarTabelas($tabela, $colunas, $where);
         if ($this->numRows > 0){
             $array = $this->result();
@@ -167,34 +181,33 @@ class ProdutosOpcoes extends model {
                 $this->id_opcao = $item['id_opcao'];
                 $this->valor = $item['valor'];
             }
-        } else{
-            $array = array();
-        }
+        } else 
+            { $array = array(); }
         return $array;
     }
     
-    public function setID($id) {
-        $this->id = $id;
+    public function setID($id) { 
+        $this->id = $id; 
     }
-    public function getID() {
-        return $this->id;
+    public function getID()    { 
+        return $this->id; 
     }
-    public function setIDProduto($idProduto) {
-        $this->id_produto = $idProduto;
+    public function setIDProduto($idProduto) { 
+        $this->id_produto = $idProduto; 
     }
-    public function getIDProduto() {
-        return $this->id_produto;
+    public function getIDProduto()           { 
+        return $this->id_produto; 
     }
-    public function setIDOpcao($idOpcao) {
-        $this->id_opcao = $idOpcao;
+    public function setIDOpcao($idOpcao) { 
+        $this->id_opcao = $idOpcao; 
     }
-    public function getIDOpcao() {
-        return $this->id_opcao;
+    public function getIDOpcao()         { 
+        return $this->id_opcao; 
     }
-    public function setValor($valor) {
-        $this->valor = $valor;
+    public function setValor($valor) { 
+        $this->valor = $valor; 
     }
-    public function getValor() {
-        return $this->valor;
+    public function getValor()       { 
+        return $this->valor; 
     }
 }

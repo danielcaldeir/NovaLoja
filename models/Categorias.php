@@ -52,10 +52,15 @@ class Categorias extends model{
         if ($this->numRows() > 0){
             foreach ($this->arrayINCat as $key => $item) {
                 $this->arrayINCat[$key]['subs'] = array();
+                $this->arrayINCat[$key]['subNivel'] = array();
                 if ($item['sub']==0){
                     $this->arrayINCat[$key]['sub'] = NULL;
+                    $this->arrayINCat[$key]['subNivel'][0] = "INICIAL";
                 }
             }
+            //echo ("<pre>");
+            //print_r($this->arrayINCat);
+            //echo ("</pre>");
             while ($this->necessitaOrganizacao($this->arrayINCat)){
                 $this->organizarCategoria();
             }
@@ -71,6 +76,12 @@ class Categorias extends model{
                 $sel = $key;
                 //echo('-'.$id.','.$sel.','.$value['id'].'-');
                 break;
+            } else {
+                if (array_key_exists($id, $value['subNivel'])){
+                    //echo ("<br>Verdadeiro");
+                    $sel = $value['subNivel'][$id];
+                    //echo('-'.$id.','.$sel.','.$value['id'].'-');
+                }
             }
         }
         return $sel;
@@ -84,6 +95,10 @@ class Categorias extends model{
                 $key = $this->identificarKEY($array, $idSub);
                 $idSubs = $item['id'];
                 $this->arrayINCat[$key]['subs'][$idSubs] = $item;
+                $this->arrayINCat[$key]['subNivel'][$idSubs] = $key;
+                //echo ("<pre>");
+                //print_r($this->arrayINCat);
+                //echo ("</pre>");
                 unset($this->arrayINCat[$id]);
                 break;
             }
@@ -97,6 +112,24 @@ class Categorias extends model{
             }
         }
         return false;
+    }
+    
+    public function existeProduto($arvore){
+        $produto = new Produtos();
+        
+        $key = array_keys($arvore);
+        $where = array();
+            $where['id_categoria'] = $key;
+        
+        $qtd = $produto->getTotalProdutos($where);
+        //echo ("<pre>");
+        //print_r($qtd);
+        //echo ("</pre>");
+        if ($qtd > 0){
+            return TRUE;
+        } else {
+            return FALSE;
+        }
     }
     
     public function selecionarALLCategorias() {
@@ -126,6 +159,70 @@ class Categorias extends model{
             }
         }
         return $this->arrayINCat;
+    }
+    
+    public function selecionarCategoriasSUB($sub) {
+        $tabela = "categorias";
+        $colunas = array("id","sub","nome");
+        $where = array(
+            "sub" => $sub
+        );
+        $this->selecionarTabelas($tabela, $colunas, $where);
+        if ($this->numRows > 0){
+            $this->arrayINCat = $this->result();
+            foreach ($this->arrayINCat as $item) {
+                $this->id = $item['id'];
+                $this->sub = $item['sub'];
+                $this->nome = $item['nome'];
+            }
+        }
+        return $this->arrayINCat;
+    }
+    
+    public function buscarSUB($sub) {
+        $return = array();
+        //$menu = new Categorias();
+        
+        if ($sub == "0") {
+            $return['sub'] = array();
+                $return['sub']['id'] = 0;
+                $return['sub']['nome'] = 'INICIAL';
+            //);
+        } else {
+            $return = $this->selecionarCategoriasID($sub);
+        }
+        return $return;
+    }
+    
+    public function incluirCategoria($nome, $sub){
+        $tabela = "categorias";
+        $dados = array (
+            "nome" => $nome,
+            "sub" => $sub
+        );
+        $this->insert($tabela, $dados);
+        $this->query("SELECT LAST_INSERT_ID() as ID");
+        return $this->array;
+    }
+    
+    public function atualizarCategoriaNomeSUB($id, $nome, $sub){
+        $tabela = "categorias";
+        $dados = array (
+            "nome" => $nome,
+            "sub" => $sub
+        );
+        $where = array (
+            "id" => $id
+        );
+        $this->update($tabela, $dados, $where);
+    }
+    
+    public function deletarCategoriaID($id){
+        $tabela = "categorias";
+        $where = array();
+        $where['id'] = $id;
+        $this->delete($tabela, $where);
+        return null;
     }
     
     public function setID($id) {

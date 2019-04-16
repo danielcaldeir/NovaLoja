@@ -7,6 +7,10 @@
 <!--    <form method="POST" action="<?php echo(BASE_URL);?>cart/excluirSession">
 <!--        <input type="submit" value="ExcluirSession"/>
 <!--    </form>
+<!--    
+<!--    <pre>
+<!--        <?php print_r($produtos); ?>
+<!--    </pre>
 -->
 <br/>
 <br/>

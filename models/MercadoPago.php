@@ -1,6 +1,5 @@
 <?php
 
-require './vendor/mercadopago/sdk/lib/mercadopago.php';
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -57,44 +56,5 @@ class MercadoPago {
             $uid = -2;
         }
         return $uid;
-    }
-    
-    public function encaminharMercadoPago($sessionCart, $idCompra, $valorFrete, $cep, $rua, $numero, $complemento) {
-        global $config;
-        $mp = new MP($config['mpID'],$config['mpSecretKEY']);
-        
-        $data = array(
-            'items' => array(),
-            'shipments' => array(),
-            'back_urls' => array(),
-            'notification_url' => BASE_URL.'pagamentoMP/notification',
-            'auto_return' => 'all',
-            'external_reference' => $idCompra
-        );
-        $data['shipments']['mode'] = "custom";
-        $data['shipments']['cost'] = $valorFrete;
-        $data['shipments']['receiver_address'] = array();
-        $data['shipments']['receiver_address']['zip_code'] = $cep;
-        $data['shipments']['receiver_address']['street_number'] = $numero;
-        $data['shipments']['receiver_address']['street_name'] = $rua;
-        $data['shipments']['receiver_address']['floor'] = $complemento;
-        $data['back_urls']['success'] = BASE_URL.'pagamentoMP/obrigadoSuccess';
-        $data['back_urls']['pending'] = BASE_URL.'pagamentoMP/obrigadoPending';
-        $data['back_urls']['failure'] = BASE_URL.'pagamentoMP/obrigadoFailure';
-        
-        foreach ($_SESSION['cart'] as $item) {
-            $data['items'][] = array(
-                'title' => $item['nome'],
-                'quantity' => intval($item['qtd']),
-                'currency_id' => 'BRL',
-                'unit_price' => floatval($item['preco'])
-            );
-        }
-        $link = $mp->create_preference($data);
-        
-        echo ("<pre>");
-        print_r($link);
-        echo ("</pre>");
-        exit();
     }
 }

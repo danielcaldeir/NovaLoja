@@ -97,35 +97,44 @@ class loginController extends controller{
     }
     
     public function redefinir($token = "") {
+        $filtros = new Filtros();
         if( !empty($_POST['senha']) ) {
             //$token = $_GET['token'];
             
-            $userToken = new usuarios_token();
-            $userToken->setHash($token);
-            $userToken->selecionarToken();
+            $userToken = new UsuariosToken();
+            //$userToken->setHash($token);
+            $array = $userToken->selecionarUsuariosTokenHash($token);
             
             if($userToken->numRows() > 0) {
                 
-                $result = $userToken->result();
-                $id = $result['id_usuario'];
+                //$result = $userToken->result();
+                //$id = $result['id_usuario'];
+                echo ("<pre>");
+                print_r($array);
+                echo ("</pre>");
+                $id = $userToken->getIDUsuario();
                 
                 if( !empty($_POST['senha']) ) {
-                    $senha = $_POST['senha'];
+                    $senha = addslashes($_POST['senha']);
                     
-                    $user = new usuario();
-                    $user->setSenha($senha);
-                    $user->setID($id);
-                    $user->atualizarSenha();
+                    $user = new Usuarios();
+                    echo ("<br/>");
+                    //$user->setSenha($senha);
+                    //$user->setID($id);
+                    echo ("<br/>ID: ".$id);
+                    echo ("<br/>SENHA: ".$senha);
+                    $user->atualizarUsuariosSenha($id, $senha);
                     
-                    $userToken->setHash($token);
-                    $userToken->setUsado(1);
-                    $userToken->atualizarUsado();
+                    //$userToken->setHash($token);
+                    //$userToken->setUsado(1);
+                    $userToken->atualizarUsuariosTokenUsado($token, '1');
                     
                     //echo "Senha alterada com sucesso!";
                     //header("Location: ../index.php?pag=redefinir&sucess=true");
                     $link = BASE_URL."login/redefinir/".$token;
-                    $dados = array();
-                    $dados["sucess"] = "true";
+                    $dados = $filtros->getTemplateDados();
+                    $dados['sidebar'] = FALSE;
+                    $dados["sucess"] = TRUE;
                     $dados["link"] = $link;
                     $dados["token"] = $token;
                     
@@ -135,8 +144,9 @@ class loginController extends controller{
                     //echo "Informe uma senha valida!";
                     //header("Location: ../index.php?pag=redefinir&senha=true&token=".$token);
                     $link = BASE_URL."login/redefinir/".$token;
-                    $dados = array();
-                    $dados["senha"] = "true";
+                    $dados = $filtros->getTemplateDados();
+                    $dados['sidebar'] = FALSE;
+                    $dados["senha"] = TRUE;
                     $dados["token"] = $token;
                     $dados["link"] = $link;
                     
@@ -147,8 +157,9 @@ class loginController extends controller{
                 //echo "Token inválido ou usado!";
                 //header("Location: ../index.php?pag=redefinir&error=true&token=".$token);
                 $link = BASE_URL."login/redefinir/".$token;
-                $dados = array();
-                $dados["error"] = "true";
+                $dados = $filtros->getTemplateDados();
+                $dados['sidebar'] = FALSE;
+                $dados["error"] = TRUE;
                 $dados["token"] = $token;
                 $dados["link"] = $link;
                 
@@ -159,8 +170,9 @@ class loginController extends controller{
             //echo "Informe uma senha valida!";
             //header("Location: ../index.php?pag=redefinir&senha=true&token=".$token);
             $link = BASE_URL."login/redefinir/".$token;
-            $dados = array();
-            $dados["redefinir"] = "true";
+            $dados = $filtros->getTemplateDados();
+            $dados['sidebar'] = FALSE;
+            $dados["redefinir"] = TRUE;
             $dados["token"] = $token;
             $dados["link"] = $link;
             
@@ -181,26 +193,28 @@ class loginController extends controller{
     public function sisEsqueciSenha(){
         if(!empty($_POST['email'])) {
             
-            $email = $_POST['email'];
+            $email = addslashes($_POST['email']);
             
-            $user = new usuario();
-            $user->setEmail($email);
-            $user->selecionarEmail();
+            $user = new Usuarios();
+            //$user->setEmail($email);
+            //$user->selecionarEmail();
+            $user->selecionarUsuariosEmail($email);
             $token = md5(time().rand(0, 99999).rand(0, 99999));
             $link = BASE_URL."login/redefinir/".$token;
             
             if($user->numRows() > 0) {
                 
-                $result = $user->result();
-                $id = $result['id'];
+                //$result = $user->result();
+                //$id = $result['id'];
+                $id = $user->getID();
                 //$token = md5(time().rand(0, 99999).rand(0, 99999));
                 $expirado_em = date('Y-m-d H:i', strtotime('+2 months'));
                 
-                $userToken = new usuarios_token();
-                $userToken->setIDUsuario($id);
-                $userToken->setHash($token);
-                $userToken->setExpiradoEm($expirado_em);
-                $userToken->incluirUsuariosToken();
+                $userToken = new UsuariosToken();
+                //$userToken->setIDUsuario($id);
+                //$userToken->setHash($token);
+                //$userToken->setExpiradoEm($expirado_em);
+                $userToken->incluirUsuariosTokenHashExpirado($id, $token, $expirado_em);
                 
                 //$link = BASE_URL."login/redefinir/".$token;
                 
@@ -223,50 +237,39 @@ class loginController extends controller{
                 
                 echo $mensagem;
                 
-                $dados = array(
-                    "redefinir" => "true",
-                    "link" => $link,
-                    "token" => $token
-                );
+                $dados = array();
+                    $dados["redefinir"] = "true";
+                    $dados["link"] = $link;
+                    $dados["token"] = $token;
+                //);
+                
                 //print_r($dados);
                 //$this->loadTemplate("redefinir", $dados);
                 header("Location: ".BASE_URL."login/redefinir/".$token);
                 //header("Location: ../index.php?pag=esqueciSenha&sucess=true&link=".$link);
                 //exit();
             } else {
-                $dados = array(
-                    "error" => "true",
-                    "token" => $token,
-                    "link" => $link
-                );
+                $dados = array();
+                    $dados["error"] = "true";
+                    $dados["token"] = $token;
+                    $dados["link"] = $link;
+                //);
+                
                 //$this->loadTemplate("esqueciSenha", $dados);
                 header("Location: ".BASE_URL."login/esqueciSenha/error/");
             }
         }
     }
     
-    private function verificarStatus(Usuarios $user, Filtros $filtros) {
-        if ($user->getStatus() == 1){
-            $_SESSION['user']['id'] = $user->getID();
-            $_SESSION['user']['nome'] = $user->getNome();
-            $_SESSION['user']['email'] = $user->getEmail();
-            $_SESSION['user']['senha'] = $user->getSenha();
-            $_SESSION['user']['status'] = $user->getStatus();
-            $_SESSION['user']['telefone'] = $user->getTelefone();
-            
-            //exit();
-            header("Location: ".BASE_URL);
-            //$this->loadTemplate("inicial");
-        } else {
-            //$result = "Usuario desabilitado ou E-Mail Invalido!";
-            //header("Location: ".BASE_URL."login/index/true/");
-            $dados = $filtros->getTemplateDados();
-            $dados['habilitado'] = "true";
-            $dados['sidebar'] = FALSE;
-            
-            $this->loadTemplate("login", $dados);
-        }
-        
+    private function atualizarSession(Usuarios $user) {
+        $_SESSION['user']['id'] = $user->getID();
+        $_SESSION['user']['nome'] = $user->getNome();
+        $_SESSION['user']['email'] = $user->getEmail();
+        $_SESSION['user']['senha'] = $user->getSenha();
+        $_SESSION['user']['status'] = $user->getStatus();
+        $_SESSION['user']['telefone'] = $user->getTelefone();
+        $_SESSION['user']['token'] = $user->getToken();
+        $_SESSION['token'] = $user->getToken();
     }
     
     public static function logout() {
@@ -280,14 +283,23 @@ class loginController extends controller{
         $filtros = new Filtros();
         $user = new Usuarios();
         
-        if (isset($_POST['email']) && empty($_POST['email'])==false){
+        if (isset($_POST['email']) && !empty($_POST['email']) ){
             $email = addslashes($_POST['email']);
             $senha = md5(addslashes($_POST['senha']));
             
-            $user->selecionarUsuariosEmailSenha($email, $senha);
-            if ($user->numRows() > 0){
-                //$dado = $user->result();
-                $this->verificarStatus($user, $filtros);
+            //$user->selecionarUsuariosEmailSenha($email, $senha);
+            if ($user->validateLogin($email, $senha)){
+                $this->atualizarSession($user);
+                //echo ("<br/>ID: ".$_SESSION['user']['id']);// = $user->getID();
+                //echo ("<br/>NOME: ".$_SESSION['user']['nome']);// = $user->getNome();
+                //echo ("<br/>E-MAIL: ".$_SESSION['user']['email']);// = $user->getEmail();
+                //echo ("<br/>SENHA: ".$_SESSION['user']['senha']);// = $user->getSenha();
+                //echo ("<br/>STATUS: ".$_SESSION['user']['status']);// = $user->getStatus();
+                //echo ("<br/>TELEFONE: ".$_SESSION['user']['telefone']);// = $user->getTelefone();
+                //echo ("<br/>TOKEN: ".$_SESSION['user']['token']);// = $user->getToken();
+                //echo ("<br/>TOKEN: ".$_SESSION['token']);// = $user->getToken();
+                //exit();
+                header("Location: ".BASE_URL);
             } else {
                 //$result = "E-mail ou Senha Invalido!";
                 //header("Location: ".BASE_URL."login/index/true/");
@@ -297,6 +309,50 @@ class loginController extends controller{
                 
                 $this->loadTemplate("login", $dados);
             }
+        } else {
+            $dados = $filtros->getTemplateDados();
+            $dados['error'] = "true";
+            $dados['sidebar'] = FALSE;
+            
+            $this->loadTemplate("login", $dados);
+        }
+    }
+    
+    public function adminLogar(){
+        $filtros = new Filtros();
+        $user = new Usuarios();
+        
+        if (isset($_POST['email']) && !empty($_POST['email']) ){
+            $email = addslashes($_POST['email']);
+            $senha = md5(addslashes($_POST['senha']));
+            
+            //$user->selecionarUsuariosEmailSenha($email, $senha);
+            if ($user->validateLogin($email, $senha)){
+                $this->atualizarSession($user);
+                
+                header("Location: ".BASE_URL."adminLTE/");
+            } else {
+                //$result = "E-mail ou Senha Invalido!";
+                //header("Location: ".BASE_URL."login/index/true/");
+                
+                $dados = $filtros->getTemplateDados();
+                $dados['validateLogin'] = TRUE;
+                $dados['sidebar'] = FALSE;
+                //$this->loadTemplate("login", $dados);
+                $this->loadViewInAdminLTE("login", $dados);
+                
+                //$_SESSION['error'] = 'E-mail ou Senha Invalido!';
+                //header("Location: ".BASE_URL."adminLTE/");
+            }
+        } else {
+            $dados = $filtros->getTemplateDados();
+            $dados['error'] = TRUE;
+            $dados['sidebar'] = FALSE;
+            //$this->loadTemplate("login", $dados);
+            $this->loadViewInAdminLTE("login", $dados);
+            
+            //$_SESSION['error'] = 'Preencha um E-mail valido!';
+            //header("Location: ".BASE_URL."adminLTE/");
         }
     }
 }

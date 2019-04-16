@@ -28,6 +28,26 @@ class ProdutosImagens extends model{
     private $url;
     //put your code here
     
+    public function incluirProdutosImagens($id_produto, $url){
+        $tabela = "Produtos_imagens";
+        $dados = array (
+            "id_produto" => $id_produto,
+            "url" => $url
+        );
+        $this->insert($tabela, $dados);
+        $this->query("SELECT LAST_INSERT_ID() as ID");
+        return $this->array;
+    }
+    
+    public function deletarProdutosImagensID($id_imagem){
+        $tabela = "Produtos_imagens";
+        $where = array( 
+            "id" => $id_imagem 
+        );
+        $this->delete($tabela, $where);
+        return null;
+    }
+    
     public function selecionarALLProdutosImagens() {
         $tabela = "Produtos_imagens";
         $colunas = array("id","id_produto","url");

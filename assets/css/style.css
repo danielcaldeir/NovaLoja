@@ -527,3 +527,8 @@ footer h3 {
     border:0;
     border-radius:5px;
 }
+
+.ui-menu{
+    margin-top:27px;
+    margin-bottom:27px;
+}
